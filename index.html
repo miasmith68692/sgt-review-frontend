@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>国资央企文件资料智能审稿系统</title>
+  <meta name="description" content="国资央企文件资料智能审稿系统 - 高效、准确的文件审核工具">
+  <meta name="robots" content="noarchive">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="js/license.js"></script>
+</head>
+<body oncontextmenu="return false;">
+
+  <!-- ========== Header ========== -->
+  <header class="header-bar" id="headerBar">
+    <div class="header-bar__left">
+      <span class="header-bar__logo">审稿通</span>
+      <span class="header-bar__title">国资央企文件资料智能审稿系统</span>
+    </div>
+    <div class="header-bar__right">
+      <!-- 核心工具组 -->
+      <button class="header-btn" id="dashboardBtn" aria-label="看板" title="质量看板">📊 数据看板</button>
+      <button class="header-btn" id="corpusBtn" aria-label="语料库" title="语料库">📚 语料库</button>
+      <button class="header-btn" id="historyBtn" aria-label="历史" title="审核历史">📋 历史</button>
+      <!-- 分隔 -->
+      <span class="header-separator"></span>
+      <!-- 配置组 -->
+      <div class="header-profile-switch" id="headerProfileSwitch">
+        <button class="header-btn" id="profileQuickBtn" title="切换 API 配置">
+          <span id="profileQuickLabel">🤖 deepseek-chat</span>
+          <span class="profile-quick-arrow">▾</span>
+        </button>
+        <div class="profile-quick-menu hidden" id="profileQuickMenu"></div>
+      </div>
+      <button class="header-btn" id="themeToggle" aria-label="暗色模式" title="暗色模式">🌙</button>
+      <span class="version-badge" id="versionBadge">🔖 1.10.9</span>
+      <span class="license-badge hidden" id="licenseBadge"></span>
+      <button class="header-btn" id="settingsBtn" aria-label="设置" title="设置">⚙ 设置</button>
+    </div>
+  </header>
+
+  <!-- ========== 激活锁屏覆盖层 ========== -->
+  <div class="activation-overlay hidden" id="activationOverlay">
+    <div class="activation-card">
+      <div class="activation-header">审稿通</div>
+      <div class="activation-subtitle">国资央企文件资料智能审稿系统</div>
+      <div class="activation-status" id="activationStatus">
+        <!-- 动态渲染 -->
+      </div>
+      <div class="activation-input-row">
+        <input class="form-input activation-input" id="activationKeyInput" placeholder="请输入激活码" autocomplete="off">
+        <button class="btn btn--primary activation-btn" id="activationSubmitBtn">激活</button>
+      </div>
+      <div class="activation-or">— 或 —</div>
+      <button class="btn btn--outline activation-trial-btn" id="activationTrialBtn">免费试用 3 天</button>
+      <div class="activation-contact">
+        <p>💡 购买激活码请联系：<strong id="activationContactPhone">xxxxxxxxx</strong></p>
+        <p class="activation-contact-hint">微信 / 电话</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Main ========== -->
+  <main class="main-content">
+    <div class="panel-wrapper">
+
+      <!-- ===== Input Panel ===== -->
+      <section class="panel" id="inputPanel">
+        <div class="panel__header">稿件输入</div>
+        <div class="panel__body">
+          <!-- Document Type -->
+          <div class="form-group">
+            <label class="form-label" for="docType">稿件类型</label>
+            <select class="form-select" id="docType">
+              <option value="auto">🤖 自动识别</option>
+              <option value="proposal">📝 方案</option>
+              <option value="work-report">📊 工作汇报</option>
+              <option value="speech-draft">🎤 讲话稿</option>
+              <option value="application">📑 申报材料</option>
+              <option value="notice">📋 通知</option>
+              <option value="copywriting">✏️ 文案策划</option>
+              <option value="news">📰 新闻稿</option>
+              <option value="speech">🎤 研讨发言</option>
+              <option value="host-words">🎤 主持词</option>
+              <option value="summary">📄 总结报告</option>
+              <option value="summary-speech">🎤 总结讲话</option>
+            </select>
+          </div>
+
+          <!-- Text Input -->
+          <div class="form-group upload-doc-group">
+            <label class="form-label" for="docContent">稿件内容</label>
+            <div class="upload-area">
+              <button class="btn btn--sm" id="uploadDocBtn" type="button">📂 上传文档</button>
+              <span class="upload-hint">支持 .docx / .txt / .md，自动提取文本填入下方</span>
+              <div class="drop-overlay hidden" id="dropOverlay">
+                <div class="drop-overlay__icon">📄</div>
+                <div class="drop-overlay__text">释放鼠标上传文档</div>
+              </div>
+            </div>
+            <textarea
+              class="textarea-input"
+              id="docContent"
+              placeholder="请在此粘贴或输入需要审核的文稿内容…&#10;&#10;支持：工作总结、汇报材料、新闻稿件、通知公告、研讨发言、实施方案、申报材料、文案策划、讲话稿、总结讲话、主持词等多种类型。"
+              spellcheck="true"
+            ></textarea>
+            <div class="word-count" id="wordCount">
+              字数：<span id="charCount">0</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="btn-group">
+            <button class="btn btn--primary" id="startBtn">
+              <span class="spinner--inline spinner--small hidden" id="startSpinner"></span>
+              开始审稿
+            </button>
+            <button class="btn btn--secondary" id="clearBtn">清空</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== Result Panel ===== -->
+      <section class="panel" id="resultPanel">
+        <div class="panel__header">审核结果</div>
+        <div class="panel__body result-area" id="resultArea">
+          <!-- Empty State -->
+          <div class="result-empty" id="resultEmpty">
+            <div class="result-empty__icon">📝</div>
+            <div class="result-empty__text">
+              请在左侧输入稿件内容，点击「开始审稿」获取智能审核结果
+            </div>
+          </div>
+
+          <!-- Loading State -->
+          <div class="result-loading hidden" id="resultLoading">
+            <div class="spinner"></div>
+            <div class="result-loading__steps">
+              <div class="step active" id="step1">📄 识别稿件类型…</div>
+              <div class="step" id="step2">🔍 逐项审核校对…</div>
+              <div class="step" id="step3">📝 审稿中…</div>
+              <div class="step" id="step4">📋 生成审核报告…</div>
+            </div>
+          </div>
+
+          <!-- Error State -->
+          <div class="result-error hidden" id="resultError">
+            <div class="result-error__icon">⚠️</div>
+            <div class="result-error__title">审核出错了</div>
+            <div class="result-error__message" id="errorMessage">请求失败，请检查网络连接后重试。</div>
+            <button class="btn btn--danger result-error__retry" id="retryBtn">重新审稿</button>
+          </div>
+
+          <!-- Completed State -->
+          <div class="result-content hidden" id="resultContent">
+            <div class="result-toolbar">
+              <button class="btn btn--sm" id="copyMdBtn">📋 复制 Markdown</button>
+              <button class="btn btn--sm" id="downloadMdBtn">⬇️ 下载 .md</button>
+              <button class="btn btn--sm btn--toggle" id="compareToggleBtn">📊 对照模式</button>
+              <button class="btn btn--sm" id="backToMainBtn">🔙 返回主对话框</button>
+            </div>
+            <div class="markdown-body" id="markdownOutput"></div>
+            <!-- 对照面板（原文/润色左右对比） -->
+            <div class="compare-panel hidden" id="comparePanel">
+              <div class="compare-panel__col">
+                <div class="compare-panel__col-header">原文</div>
+                <div class="compare-panel__col-content" id="compareOriginal"></div>
+              </div>
+              <div class="compare-panel__divider"></div>
+              <div class="compare-panel__col">
+                <div class="compare-panel__col-header">审核结果</div>
+                <div class="compare-panel__col-content" id="compareResult"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========== Footer ========== -->
+  <footer class="footer-bar" id="footerBar">
+    <span class="footer-bar__copyright">版权所有人：</span>
+    <span class="footer-bar__brand">榴莲柠檬</span>
+    <span class="footer-bar__phone">18919090798</span>
+  </footer>
+
+  <!-- ========== Settings Modal ========== -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-label="设置">
+      <div class="modal__header">
+        <span class="modal__title">⚙ 系统设置</span>
+        <button class="modal__close" id="modalClose" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal__body">
+        <!-- 配置管理 -->
+        <div class="form-group">
+          <label class="form-label">API 配置</label>
+          <div class="profile-selector">
+            <select class="form-input form-input--flex" id="profileSelector">
+              <option value="">-- 选择配置 --</option>
+            </select>
+            <div class="profile-actions">
+              <button class="btn btn--sm btn--danger" id="profileDeleteBtn" type="button">🗑 删除</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-divider"></div>
+        <div class="form-group">
+          <label class="form-label" for="apiProvider">API 提供商</label>
+          <select class="form-input" id="apiProvider">
+            <option value="deepseek">DeepSeek</option>
+            <option value="qwen">千问 (Qwen)</option>
+            <option value="doubao">豆包 (Doubao)</option>
+            <option value="kimi">Kimi (Moonshot)</option>
+            <option value="glm">GLM (智谱)</option>
+            <option value="minimax">MiniMax</option>
+            <option value="stepfun">阶跃星辰 (StepFun)</option>
+            <option value="hunyuan">腾讯混元</option>
+            <option value="custom">自定义</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="apiBaseUrl">API Base URL</label>
+          <input class="form-input" type="url" id="apiBaseUrl" placeholder="https://api.deepseek.com" value="https://api.deepseek.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="apiKey">API Key</label>
+          <input class="form-input" type="password" id="apiKey" placeholder="sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="modelName">Model 名称</label>
+          <input class="form-input" type="text" id="modelName" placeholder="deepseek-v4-flash" value="deepseek-v4-flash">
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" id="modalCancel">取消</button>
+        <button class="btn btn--primary" id="modalSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Corpus Modal ========== -->
+  <div class="modal-overlay" id="corpusOverlay">
+    <div class="modal modal--wide" role="dialog" aria-label="语料库管理">
+      <div class="modal__header">
+        <span class="modal__title">📚 语料库管理</span>
+        <button class="modal__close" id="corpusClose" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="corpus-tabs">
+          <button class="corpus-tab corpus-tab--active" data-type="rule">📏 规则卡（必遵）</button>
+          <button class="corpus-tab" data-type="corpus">📚 语料库（参考）</button>
+        </div>
+        <div class="corpus-toolbar">
+          <button class="btn btn--sm" id="addCorpusBtn">＋ 添加条目</button>
+          <span class="corpus-toolbar__hint" id="corpusHint">设置领导排序、敏感词等硬性规则，审核时必须遵守</span>
+        </div>
+        <div class="corpus-list" id="corpusList">
+          <!-- 由 JS 动态渲染 -->
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--danger btn--sm" id="clearCorpusBtn">🗑️ 清空全部</button>
+        <button class="btn btn--secondary" id="corpusCancel">取消</button>
+        <button class="btn btn--primary" id="corpusSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Changelog Modal ========== -->
+  <div class="modal-overlay" id="changelogOverlay">
+    <div class="modal" role="dialog" aria-label="更新日志" style="max-width:500px;">
+      <div class="modal__header">
+        <span class="modal__title">📋 更新日志</span>
+        <button class="modal__close" id="changelogClose" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal__body" id="changelogBody" style="white-space:pre-wrap;line-height:1.7;font-size:0.9rem;">
+        加载中…
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--secondary" id="changelogCloseBtn">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Toast ========== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ========== About Modal ========== -->
+  <div class="modal-overlay" id="aboutOverlay">
+    <div class="modal" role="dialog" aria-label="关于" style="max-width:420px;">
+      <div class="modal__header">
+        <span class="modal__title">📋 关于</span>
+        <button class="modal__close" id="aboutClose" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal__body" style="text-align:center;">
+        <div style="font-size:1.8rem;font-weight:700;color:var(--primary);margin-bottom:8px;">审稿通</div>
+        <div style="font-size:0.92rem;color:var(--text-secondary);margin-bottom:16px;">
+          国资央企文件资料智能审稿系统
+        </div>
+        <div class="about-info" id="aboutContent">
+          <!-- 由 JS 动态渲染版本/版权信息 -->
+        </div>
+      </div>
+      <div class="modal__footer" style="justify-content:center;">
+        <button class="btn btn--primary" id="aboutCloseBtn">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Dashboard Modal ========== -->
+  <div class="modal-overlay" id="dashboardOverlay">
+    <div class="modal modal--wide modal--xl" role="dialog" aria-label="质量看板">
+      <div class="modal__header">
+        <span class="modal__title">📊 质量趋势看板</span>
+        <button class="modal__close" id="dashboardClose" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal__body">
+        <!-- 时间筛选 -->
+        <div class="dash-filters">
+          <button class="dash-filter-btn" data-range="7">近7天</button>
+          <button class="dash-filter-btn" data-range="30">近30天</button>
+          <button class="dash-filter-btn" data-range="90">近90天</button>
+          <button class="dash-filter-btn dash-filter-btn--active" data-range="all">全部</button>
+          <span class="dash-filters__sep">|</span>
+          <input type="date" id="dashDateStart" class="form-input" style="width:140px">
+          <span style="color:var(--text-muted);font-size:0.82rem;">~</span>
+          <input type="date" id="dashDateEnd" class="form-input" style="width:140px">
+        </div>
+        <!-- 概览卡片 -->
+        <div class="dash-cards" id="dashCards"></div>
+        <!-- 图表区 -->
+        <div class="dash-charts">
+          <div class="dash-chart-box">
+            <div class="dash-chart__title">📈 合格率趋势</div>
+            <canvas id="chartPassRate"></canvas>
+          </div>
+          <div class="dash-chart-box">
+            <div class="dash-chart__title">📊 错误类型分布</div>
+            <canvas id="chartErrors"></canvas>
+          </div>
+          <div class="dash-chart-box dash-chart-box--full">
+            <div class="dash-chart__title">📋 按稿件类型分析</div>
+            <div id="dashDocTypeTable"></div>
+          </div>
+        </div>
+        <!-- 空状态 -->
+        <div class="dash-empty hidden" id="dashEmpty">
+          <div style="font-size:2.5rem;margin-bottom:12px;">📭</div>
+          <div style="color:var(--text-muted);">暂无数据，审核稿件后会自动生成趋势分析</div>
+        </div>
+        <!-- 详细记录预览 -->
+        <div class="dash-detail-section">
+          <div class="dash-detail-section__title">📋 审核记录明细</div>
+          <div class="dash-detail-table-wrap" id="dashDetailWrap">
+            <table class="dash-detail-table">
+              <thead><tr>
+                <th>文件名称</th><th>时间</th><th>稿件类型</th><th>得分</th><th>问题数</th><th>合格</th>
+              </tr></thead>
+              <tbody id="dashDetailBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--sm" id="dashExportReportBtn">📄 导出 Markdown</button>
+        <button class="btn btn--sm" id="dashExportCsvBtn">📊 导出 CSV</button>
+        <span style="flex:1"></span>
+        <button class="btn btn--secondary" id="dashCancel">关闭</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== History Modal ========== -->
+  <div class="modal-overlay" id="historyOverlay">
+    <div class="modal modal--wide" role="dialog" aria-label="审核历史">
+      <div class="modal__header">
+        <span class="modal__title">📋 审核历史</span>
+        <button class="modal__close" id="historyClose" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal__body">
+        <div class="history-filter">
+          <input type="text" id="historySearch" placeholder="🔍 搜索关键词…" class="form-input" style="flex:1">
+          <select id="historyTypeFilter" class="form-input" style="width:140px">
+            <option value="">全部类型</option>
+            <option value="方案">方案</option>
+            <option value="工作汇报">工作汇报</option>
+            <option value="讲话稿">讲话稿</option>
+            <option value="申报材料">申报材料</option>
+            <option value="通知">通知</option>
+            <option value="文案策划">文案策划</option>
+            <option value="新闻稿">新闻稿</option>
+            <option value="研讨发言">研讨发言</option>
+            <option value="主持词">主持词</option>
+            <option value="总结报告">总结报告</option>
+            <option value="总结讲话">总结讲话</option>
+          </select>
+          <input type="date" id="historyDateFilter" class="form-input" style="width:150px">
+        </div>
+        <div class="history-list" id="historyList">
+          <div class="history-empty">暂无审核记录</div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--sm" id="exportDataBtn">📤 导出数据</button>
+        <button class="btn btn--sm" id="importDataBtn">📥 导入数据</button>
+        <input type="file" id="importDataInput" accept=".json" style="display:none">
+        <span style="flex:1"></span>
+        <button class="btn btn--danger btn--sm" id="clearHistoryBtn">🗑️ 清空全部</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== Scripts (本地优先，CDN兜底) ========== -->
+  <script src="lib/marked.min.js"></script>
+  <script>if (typeof marked === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"><\/script>'); }</script>
+  <script src="lib/mammoth.browser.min.js"></script>
+  <script>if (typeof mammoth === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"><\/script>'); }</script>
+  <script src="lib/xlsx.full.min.js"></script>
+  <script>if (typeof XLSX === 'undefined') { document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\/script>'); }</script>
+  <script src="js/prompts.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
