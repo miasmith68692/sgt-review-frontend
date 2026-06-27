@@ -1,0 +1,9 @@
+{
+  "name": "sgt-review-tool",
+  "version": "1.10.0",
+  "private": true,
+  "scripts": {
+    "deploy": "npx.cmd netlify-cli deploy --prod --dir=. --message \"deploy: $(node -p \"require('./version.json').version\")\"",
+    "deploy:token": "npx.cmd netlify-cli deploy --prod --dir=. --message \"deploy: $(node -p \"require('./version.json').version\")\" --site e4854031-35da-4061-810c-d686722890de"
+  }
+}
