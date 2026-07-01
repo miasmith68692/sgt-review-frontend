@@ -1,7 +1,7 @@
 ﻿{
-    "version":  "1.11.0",
+    "version":  "1.11.1",
     "releaseDate":  "2026-07-01",
-    "updateLog":  "代码版本管理：frontend+server结构，GitHub双仓库同步",
+    "updateLog":  "后台管理头部设计优化：两行布局，大标题突出",
     "copyright":  "榴莲柠檬",
     "phone":  "18919090798"
 }
