@@ -1,7 +1,7 @@
 ﻿{
-    "version":  "1.10.9",
-    "releaseDate":  "2026-06-27",
-    "updateLog":  "Render 部署成功，接入 PostgreSQL 云端数据库",
+    "version":  "1.11.0",
+    "releaseDate":  "2026-07-01",
+    "updateLog":  "代码版本管理：frontend+server结构，GitHub双仓库同步",
     "copyright":  "榴莲柠檬",
     "phone":  "18919090798"
 }
